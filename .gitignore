@@ -1,0 +1,6 @@
+*.sh
+*.pyc
+tfrecords/
+logs/
+hico_data/
+checkpoints/
