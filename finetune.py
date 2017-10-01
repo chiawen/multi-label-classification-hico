@@ -54,7 +54,7 @@ def get_init_fn(checkpoint_dir):
 
 def main(_):
     if not tf.gfile.Exists(FLAGS.log_dir):
-        tf.gfile.Makeirs(FLAGS.log_dir)
+        tf.gfile.MakeDirs(FLAGS.log_dir)
 
     with tf.Graph().as_default():
         tf.logging.set_verbosity(tf.logging.DEBUG)
@@ -117,7 +117,7 @@ def main(_):
 
         slim.learning.train(
             train_op,
-            logdir=FLAGS.train_dir,
+            logdir=FLAGS.log_dir,
             init_fn=get_init_fn(FLAGS.checkpoint),
             number_of_steps=1000
         )

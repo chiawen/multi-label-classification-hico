@@ -1,5 +1,6 @@
 *.sh
 *.pyc
+*.out
 tfrecords/
 logs/
 hico_data/
