@@ -294,7 +294,8 @@ def _process_dataset(name, data_dir, filenames_file, labels_file,
       text_list.append(label_to_text[int(part)])
     labels.append(encoded_label.tostring())
     labels_text.append(text_list)
-    
+
+  """
   # Shuffle the ordering of all image files in order to guarantee
   # random ordering of the images with respect to label in the
   # saved TFRecord files. Make the randomization repeatable.
@@ -305,9 +306,7 @@ def _process_dataset(name, data_dir, filenames_file, labels_file,
   filenames = [filenames[i] for i in shuffled_index]
   labels = [labels[i] for i in shuffled_index]
   labels_text = [labels_text[i] for i in shuffled_index]
-  
-  #print(labels[0])
-  #print(len(labels[0]))
+  """
 
 
   # Break all images <num_shards> shards

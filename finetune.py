@@ -17,7 +17,7 @@ image_size = inception_v3.default_image_size
 
 tf.flags.DEFINE_integer('batch_size', 32, 'Batch size')
 tf.flags.DEFINE_integer('epochs', 15, 'Number of training epochs')
-tf.flags.DEFINE_float('learning_rate', 1e-2, 'Initial learning rate')
+tf.flags.DEFINE_float('learning_rate', 1e-4, 'Initial learning rate')
 
 tf.flags.DEFINE_string('log_dir', './logs', 
                         'The directory to save the model files in')
@@ -48,7 +48,6 @@ def get_init_fn(checkpoint_dir):
 
     return slim.assign_from_checkpoint_fn(os.path.join(checkpoint_dir, 'inception_v3.ckpt'),
             variables_to_restore)
-
 
 
 
@@ -113,13 +112,18 @@ def main(_):
         tf.summary.scalar('accuracy', mean_accuracy)
 
         optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
+        
+        #mean_accuracy= tf.Print(mean_accuracy, [mean_accuracy], 'accuracy')
+        #tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, mean_accuracy)
+
         train_op = slim.learning.create_train_op(loss, optimizer)
+
 
         slim.learning.train(
             train_op,
             logdir=FLAGS.log_dir,
             init_fn=get_init_fn(FLAGS.checkpoint),
-            number_of_steps=1000
+            number_of_steps=1000,
         )
 
 if __name__ == '__main__':
