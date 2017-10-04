@@ -18,7 +18,7 @@ image_size = inception_v3.default_image_size
 
 tf.flags.DEFINE_integer('batch_size', 64, 'Batch size')
 tf.flags.DEFINE_integer('epochs', 10, 'Number of training epochs')
-tf.flags.DEFINE_float('learning_rate', 1e-2, 'Initial learning rate')
+tf.flags.DEFINE_float('learning_rate', 1e-3, 'Initial learning rate')
 
 tf.flags.DEFINE_string('log_dir', './logs', 
                         'The directory to save the model files in')

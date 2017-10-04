@@ -157,8 +157,6 @@ def main(_):
         
         prediction_arr = np.concatenate(prediction_list, axis=0)
         label_arr = np.concatenate(label_list, axis=0)
-        print(prediction_arr.shape)
-        print(label_arr.shape)
         
         mAP = calculate_mAP(prediction_arr, label_arr)
         print('mAP score: {}'.format(mAP))
