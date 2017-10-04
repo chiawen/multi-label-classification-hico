@@ -46,7 +46,6 @@ if __name__ == '__main__':
 	# Read the labels from annotation mat file
 	anno_mat = sio.loadmat(anno_file)
 
-	"""
 	# Output labels
 	anno_train = anno_mat['anno_train']
 	labels_train_file = os.path.join(data_dir, 'labels_train.txt')
@@ -54,7 +53,6 @@ if __name__ == '__main__':
 	anno_test = anno_mat['anno_test']
 	labels_test_file = os.path.join(data_dir, 'labels_test.txt')
 	generate_labels_file(anno_test, labels_test_file)
-	"""
 
 	# Output label_text
 	list_action = anno_mat['list_action']
