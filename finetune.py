@@ -5,6 +5,7 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 import os
+import math
 
 from inception_v3 import inception_v3, inception_v3_arg_scope
 import inception_preprocessing
@@ -15,9 +16,9 @@ slim = tf.contrib.slim
 image_size = inception_v3.default_image_size
 
 
-tf.flags.DEFINE_integer('batch_size', 32, 'Batch size')
-tf.flags.DEFINE_integer('epochs', 15, 'Number of training epochs')
-tf.flags.DEFINE_float('learning_rate', 1e-4, 'Initial learning rate')
+tf.flags.DEFINE_integer('batch_size', 64, 'Batch size')
+tf.flags.DEFINE_integer('epochs', 10, 'Number of training epochs')
+tf.flags.DEFINE_float('learning_rate', 1e-2, 'Initial learning rate')
 
 tf.flags.DEFINE_string('log_dir', './logs', 
                         'The directory to save the model files in')
@@ -72,7 +73,6 @@ def main(_):
         
         label = tf.reshape(label, [FLAGS.num_classes])
 
-        
         # Preprocess images
         image = inception_preprocessing.preprocess_image(image, image_size, image_size,
                 is_training=True)
@@ -84,14 +84,6 @@ def main(_):
                 num_threads = 1,
                 capacity = 5 * FLAGS.batch_size)
         
-        """ 
-        with tf.Session() as sess:
-            with slim.queues.QueueRunners(sess):
-                np_images, np_labels = sess.run([images, labels])
-                print(np_images.shape)
-                print(np_labels.shape)
-        """        
-       
         # Create the model
         with slim.arg_scope(inception_v3_arg_scope()):
             logits, _ = inception_v3(images, num_classes = FLAGS.num_classes, is_training=True)
@@ -101,29 +93,32 @@ def main(_):
         cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits = logits, labels = labels)
         loss = tf.reduce_mean(cross_entropy)
 
-        correct_prediction = tf.equal(tf.round(predictions), labels)
-        
-        # Mean accuracy over all labels:
-        # http://stackoverflow.com/questions/37746670/tensorflow-multi-label-accuracy-calculation
-        mean_accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
         # Add summaries
         tf.summary.scalar('loss', loss)
-        tf.summary.scalar('accuracy', mean_accuracy)
+
+        # Fine-tune only the new layers
+        trainable_scopes = ['InceptionV3/Logits', 'InceptionV3/AuxLogits']
+        scopes = [scope.strip() for scope in trainable_scopes]
+        variables_to_train = []
+        for scope in scopes:
+            variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope)
+            variables_to_train.extend(variables)
+        
 
         optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
+
+        train_op = slim.learning.create_train_op(loss, optimizer, variables_to_train=variables_to_train)
+
+        num_batches = math.ceil(data_provider.num_samples()/float(FLAGS.batch_size)) 
+        num_steps = FLAGS.epochs * int(num_batches)
         
-        #mean_accuracy= tf.Print(mean_accuracy, [mean_accuracy], 'accuracy')
-        #tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, mean_accuracy)
-
-        train_op = slim.learning.create_train_op(loss, optimizer)
-
-
         slim.learning.train(
             train_op,
             logdir=FLAGS.log_dir,
             init_fn=get_init_fn(FLAGS.checkpoint),
-            number_of_steps=1000,
+            number_of_steps=num_steps,
+            save_summaries_secs=300,
+            save_interval_secs=300
         )
 
 if __name__ == '__main__':

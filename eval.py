@@ -37,18 +37,11 @@ def calculate_mAP(y_pred, y_true):
         pred = y_pred[:,index]
         label = y_true[:,index]
 
-        """
-        positive_indices = pred > 0.5
-        pred = pred[positive_indices]
-        label = label[positive_indices]
-        print(pred.shpae)
-        """
 
         sorted_indices = np.argsort(-pred)
         sorted_pred = pred[sorted_indices]
         sorted_label = label[sorted_indices]
 
-        
 
         tp = (sorted_label == 1)
         fp = (sorted_label == 0)
